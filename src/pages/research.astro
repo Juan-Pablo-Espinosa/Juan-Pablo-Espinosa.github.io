@@ -133,7 +133,11 @@ const isMe = (a: string) => a.replace(/\s+/g, ' ').toLowerCase() === site.name.t
             return (
               <article class="frame patent" data-reveal>
                 <p class="meta">
-                  <span class="accent">[{p.data.type.toUpperCase()} · {p.data.status.toUpperCase()}]</span>
+                  <span class="accent">
+                    [{[p.data.type, p.data.status].filter(Boolean).join(' · ').toUpperCase()}]
+                  </span>
+                  {p.data.jurisdiction && <> · {p.data.jurisdiction}</>}
+                  {p.data.role && <> · {p.data.role}</>}
                   {p.data.date && <> · {fmtMonth(p.data.date)}</>}
                   {p.data.number && <> · NO. {p.data.number}</>}
                 </p>

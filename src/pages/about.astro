@@ -10,7 +10,8 @@ import { site } from '../site.config';
 import { headshot } from '../lib/assets';
 import { getProjects, getAwards, fmtMonth, iso } from '../lib/content';
 
-const [education, organizations, skillsRaw, projects, awards] = await Promise.all([
+const [experience, education, organizations, skillsRaw, projects, awards] = await Promise.all([
+  getCollection('experience'),
   getCollection('education'),
   getCollection('organizations'),
   getCollection('skills'),
@@ -21,14 +22,16 @@ const [education, organizations, skillsRaw, projects, awards] = await Promise.al
 const byOrder = (a: { data: { order: number } }, b: { data: { order: number } }) => a.data.order - b.data.order;
 const skills = skillsRaw.sort(byOrder);
 education.sort(byOrder);
+experience.sort(byOrder);
 organizations.sort(byOrder);
 const projectById = new Map(projects.map((p) => [p.id, p]));
 
 const shown = {
+  experience: experience.length > 0,
   education: education.length > 0,
+  awards: awards.length > 0,
   orgs: organizations.length > 0,
   skills: skills.length > 0,
-  awards: awards.length > 0,
 };
 // "Bio" is always section 01; the rest follow in order.
 const order = ['bio', ...(Object.keys(shown) as (keyof typeof shown)[]).filter((k) => shown[k])];
@@ -66,6 +69,49 @@ const idx = (k: string) => order.indexOf(k) + 1;
   </section>
 
   {
+    shown.experience && (
+      <section class="section container" aria-labelledby="a-exp">
+        <SectionLabel index={idx('experience')} label="Experience" title="Experience" id="a-exp" />
+        <ol class="timeline">
+          {experience.map((x) => {
+            const proj = x.data.project && projectById.get(x.data.project.id);
+            return (
+              <li class="frame job" data-reveal>
+                <div class="job-head">
+                  <div>
+                    <h3>{x.data.role}</h3>
+                    <p class="org">
+                      {x.data.url ? (
+                        <a href={x.data.url} rel="noopener">
+                          {x.data.org}
+                        </a>
+                      ) : (
+                        x.data.org
+                      )}
+                      {x.data.location && <span class="dim"> · {x.data.location}</span>}
+                    </p>
+                  </div>
+                  <p class="meta">{x.data.period}</p>
+                </div>
+                <ul class="bullets">
+                  {x.data.bullets.map((b) => (
+                    <li>{b}</li>
+                  ))}
+                </ul>
+                {proj && (
+                  <p class="meta job-link">
+                    CASE STUDY → <a href={`/projects/${proj.id}/`}>{proj.data.title}</a>
+                  </p>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+    )
+  }
+
+  {
     shown.education && (
       <section class="section container" aria-labelledby="a-edu">
         <SectionLabel index={idx('education')} label="Education" title="Education" id="a-edu" />
@@ -78,6 +124,13 @@ const idx = (k: string) => order.indexOf(k) + 1;
                   {e.data.degree}
                   {e.data.detail && <> · {e.data.detail}</>}
                 </p>
+                {e.data.honors.length > 0 && (
+                  <ul class="honors">
+                    {e.data.honors.map((h) => (
+                      <li>{h}</li>
+                    ))}
+                  </ul>
+                )}
               </div>
               {e.data.period && <p class="meta">{e.data.period}</p>}
             </li>
@@ -88,9 +141,36 @@ const idx = (k: string) => order.indexOf(k) + 1;
   }
 
   {
+    shown.awards && (
+      <section class="section container" aria-labelledby="a-awards">
+        <SectionLabel index={idx('awards')} label="Recognition" title="Awards" id="a-awards" />
+        <ul class="rows">
+          {awards.map((a) => (
+            <li class="row" data-reveal>
+              <div>
+                <h3>{a.data.title}</h3>
+                <p class="dim">
+                  {a.data.org}
+                  {a.data.description && <> — {a.data.description}</>}
+                </p>
+              </div>
+              {a.data.date ? (
+                <time class="meta" datetime={iso(a.data.date)}>
+                  {fmtMonth(a.data.date)}
+                </time>
+              ) : (
+                a.data.year && <p class="meta">{a.data.year}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+  {
     shown.orgs && (
       <section class="section container" aria-labelledby="a-orgs">
-        <SectionLabel index={idx('orgs')} label="Organizations" title="Organizations" id="a-orgs" />
+        <SectionLabel index={idx('orgs')} label="Leadership" title="Leadership & organizations" id="a-orgs" />
         <ul class="rows">
           {organizations.map((o) => (
             <li class="row" data-reveal>
@@ -103,7 +183,10 @@ const idx = (k: string) => order.indexOf(k) + 1;
                   o.data.name
                 )}
               </h3>
-              <p class="dim">{o.data.role}</p>
+              <p class="dim">
+                {o.data.role}
+                {o.data.period && <span class="meta period"> · {o.data.period}</span>}
+              </p>
             </li>
           ))}
         </ul>
@@ -145,29 +228,6 @@ const idx = (k: string) => order.indexOf(k) + 1;
     )
   }
 
-  {
-    shown.awards && (
-      <section class="section container" aria-labelledby="a-awards">
-        <SectionLabel index={idx('awards')} label="Recognition" title="Awards" id="a-awards" />
-        <ul class="rows">
-          {awards.map((a) => (
-            <li class="row" data-reveal>
-              <div>
-                <h3>{a.data.title}</h3>
-                <p class="dim">
-                  {a.data.org}
-                  {a.data.description && <> — {a.data.description}</>}
-                </p>
-              </div>
-              <time class="meta" datetime={iso(a.data.date)}>
-                {fmtMonth(a.data.date)}
-              </time>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
 </Base>
 
 <style>
@@ -241,6 +301,70 @@ const idx = (k: string) => order.indexOf(k) + 1;
   }
   .row p.dim {
     margin-top: 0.2rem;
+  }
+  .timeline {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .job {
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+  }
+  .job-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.5rem;
+  }
+  .job h3 {
+    font-size: 1.1rem;
+  }
+  .org {
+    margin-top: 0.2rem;
+    color: var(--text);
+  }
+  .org a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  .bullets {
+    margin-top: 0.9rem;
+    padding-left: 1.1rem;
+    color: var(--text-dim);
+    font-size: 0.97rem;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .bullets li::marker {
+    content: '▸  ';
+    color: var(--accent);
+    font-size: 0.8em;
+  }
+  .job-link {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--line-strong);
+  }
+  .job-link a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  .honors {
+    margin-top: 0.35rem;
+    padding-left: 1.1rem;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+  }
+  .honors li::marker {
+    content: '▸  ';
+    color: var(--accent);
+    font-size: 0.8em;
+  }
+  .period {
+    text-transform: none;
+    letter-spacing: 0.02em;
   }
   .skills {
     display: grid;

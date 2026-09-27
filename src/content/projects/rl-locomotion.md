@@ -1,12 +1,12 @@
 ---
 title: RL Locomotion Training
 codename: RL-LOCO
-summary: An Isaac Lab + PPO training pipeline for GR0X locomotion, using the Unitree G1 29-DOF as a reference while the robot's own model matures.
+summary: An Isaac Lab + PPO training pipeline for GR0X locomotion, validated against the Unitree G1 29-DOF — now producing working locomotion policies for the adaptive lower body.
 role: Pipeline developer
 date: 2026-05-01  # TODO: confirm start date (only month/year is displayed)
 featured: true
-order: 3
-status: in-development
+order: 4
+status: active
 tags: [Isaac Lab, Reinforcement Learning, PPO, Python, Simulation]
 repo: https://github.com/Juan-Pablo-Espinosa/grox-isaac-lab
 links: []
@@ -37,5 +37,5 @@ I set up and debugged the training pipeline end to end.
 
 ## Results
 
-- A working, debugged PPO pipeline ready for GR0X-specific training.
-- In development: training on the GR0X model.
+- Working RL-based locomotion policies for the GR0X adaptive lower body.
+- In progress: preparing sim-to-real transfer.

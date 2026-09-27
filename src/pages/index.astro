@@ -56,9 +56,9 @@ const countBy = <T extends string>(xs: T[]) =>
       <h1 id="hero-name">{site.name}</h1>
       <p class="lead">{site.identity}</p>
       <dl class="readouts">
-        <div><dt>ROLE</dt><dd>Founder · Daedamorph Robotics</dd></div>
-        <div><dt>BUILD</dt><dd>GR0X morphing humanoid</dd></div>
+        <div><dt>ROLE</dt><dd>Research lead · GR0X humanoid</dd></div>
         <div><dt>LAB</dt><dd>ALMaS Research Group · WPI</dd></div>
+        <div><dt>STUDY</dt><dd>B.S. Robotics Eng. &amp; CS · WPI</dd></div>
       </dl>
       <div class="btn-row">
         {
@@ -139,11 +139,12 @@ const countBy = <T extends string>(xs: T[]) =>
           <div class="frame research-card telemetry" data-reveal>
             <p class="meta">// OUTPUT</p>
             <ul>
-              {countBy(patents.map((p) => p.data.type)).map(([type, n]) => (
+              {patents.length > 0 && (
                 <li>
-                  <span class="accent">{String(n).padStart(2, '0')}</span> {type} patent{n > 1 ? 's' : ''}
+                  <span class="accent">{String(patents.length).padStart(2, '0')}</span> patent filing
+                  {patents.length > 1 ? 's' : ''}
                 </li>
-              ))}
+              )}
               {countBy(pubs.map((p) => p.data.status)).map(([status, n]) => (
                 <li>
                   <span class="accent">{String(n).padStart(2, '0')}</span> {status.replace('-', ' ')}{' '}

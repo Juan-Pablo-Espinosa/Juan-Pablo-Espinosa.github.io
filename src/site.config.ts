@@ -10,9 +10,9 @@ export const site = {
   /** Short form used in the logo and boot prompt. */
   handle: 'juanpablo',
   /** One-line identity shown in the hero and in meta descriptions. */
-  identity: 'Robotics engineering student at WPI building morphing humanoid robots.',
+  identity: 'Robotics engineer and research lead of GR0X, a morphing humanoid robot at WPI.',
   description:
-    'Juan Pablo Espinosa — robotics engineering student at Worcester Polytechnic Institute, researcher in the ALMaS Research Group, and lead engineer of the GR0X morphing humanoid.',
+    'Juan Pablo Espinosa — robotics engineer and research lead of the GR0X morphing humanoid in the ALMaS Research Group at WPI. B.S. Robotics Engineering & Computer Science.',
   location: 'Worcester, MA',
   url: 'https://juan-pablo-espinosa.github.io',
 
@@ -23,7 +23,7 @@ export const site = {
       { label: 'WPI Email', address: 'jchessal@wpi.edu' },
     ],
     github: 'https://github.com/Juan-Pablo-Espinosa',
-    linkedin: '', // TODO: add your LinkedIn URL, e.g. 'https://www.linkedin.com/in/…'
+    linkedin: 'https://www.linkedin.com/in/Juan-Pablo-ESCH',
   },
 
   /** Path (inside /public) to your resume. The CV page detects whether it exists. */

@@ -1,27 +1,37 @@
 # `proof` lists project file names (without .md) that demonstrate the skill.
-# A typo here fails the build, so links never go stale.
+# A typo here fails the build, so links never go stale. `proof` may be empty.
 - id: controls
   order: 1
   group: Controls & Actuation
-  items: [CAN FD / SocketCAN, RobStride actuators, Real-time motor control loops]
+  items: [CAN FD / SocketCAN, RobStride actuators, Real-time motor control loops, Control systems, Locomotion]
   proof: [gr0x-humanoid, robstride-motor-control]
-- id: embedded
-  order: 2
-  group: Embedded & Linux
-  items: [Raspberry Pi 5, Raspberry Pi Pico (C/C++ SDK), Yocto Linux, Device trees, systemd]
-  proof: [gr0x-humanoid, rbe2020-embedded]
-- id: software
-  order: 3
-  group: Robotics Software
-  items: [ROS 2 Jazzy, C++, Python]
-  proof: [gr0x-humanoid]
 - id: learning
-  order: 4
+  order: 2
   group: Learning & Simulation
-  items: [Isaac Lab, Reinforcement learning (PPO)]
-  proof: [rl-locomotion]
-- id: mechanical
+  items: [Isaac Lab, Isaac Sim, Isaac Gym, RSL-RL, PyTorch, RL policy training, Domain randomization, Sim-to-real transfer, Gazebo]
+  proof: [rl-locomotion, gr0x-humanoid]
+- id: perception
+  order: 3
+  group: Perception & Autonomy
+  items: [LiDAR SLAM, Computer vision, YOLO, Path planning, Odometry]
+  proof: [prometheus-3, ai-vision-sumo, frc-3480-3284]
+- id: software
+  order: 4
+  group: Software
+  items: [C++, Python, C, Java, C#, Bash, ROS 2 Jazzy, Git, Linux, MATLAB]
+  proof: [robstride-motor-control, gr0x-humanoid]
+- id: embedded
   order: 5
+  group: Embedded & Electronics
+  items: [Raspberry Pi 5, Yocto Linux, Device trees, systemd, Microcontrollers, PCB design, Sensors & actuators, Circuit debugging]
+  proof: [gr0x-humanoid, prometheus-3]
+- id: mechanical
+  order: 6
   group: Mechanical & CAD
-  items: [SolidWorks, URDF export, Mechanism design]
+  items: [SolidWorks, Onshape, Inventor, 3D printing, Manufacturing, Mechanism design, URDF export]
   proof: [gr0x-humanoid]
+- id: languages
+  order: 7
+  group: Languages
+  items: [Spanish (native), English (fluent), German (basic)]
+  proof: []

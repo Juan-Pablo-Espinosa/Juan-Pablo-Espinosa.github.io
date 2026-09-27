@@ -5,7 +5,7 @@ summary: A production-grade C++ library for RobStride actuators over Linux Socke
 role: Author & maintainer
 date: 2026-03-01  # TODO: confirm start date (only month/year is displayed)
 featured: true
-order: 2
+order: 3
 status: active
 tags: [C++, SocketCAN, CAN FD, ROS 2, systemd]
 repo: https://github.com/Juan-Pablo-Espinosa/robstride-motor-control

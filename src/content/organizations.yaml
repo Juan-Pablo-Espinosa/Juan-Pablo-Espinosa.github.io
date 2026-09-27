@@ -1,17 +1,29 @@
-# Shown in `order` (lowest first). Each entry needs a unique `id`.
-- id: daedamorph
-  order: 1
-  name: Daedamorph Robotics
-  role: Founder · Lead engineer, GR0X humanoid
+# Leadership & organizations. Shown in `order` (lowest first). Each entry needs a unique `id`.
 - id: almas
-  order: 2
+  order: 1
   name: ALMaS Research Group, WPI
-  role: Undergraduate researcher (Prof. Mahdi Agheli)
+  role: Founder & Research Lead, GR-0X Humanoid (Prof. Mahdi Agheli)
+  period: May 2025 – Present
 - id: ieee
+  order: 2
+  name: IEEE Student Branch — WPI
+  role: Conference Chair (Executive Board)
+  period: Aug 2025 – Present
+- id: daedamorph
   order: 3
-  name: WPI IEEE Student Branch
-  role: Member
+  name: Daedamorph Robotics
+  role: Founder
 - id: bionics
   order: 4
   name: WPI Bionics Club
   role: Member
+- id: icu
+  order: 5
+  name: International Club of Unity (I.C.U.)
+  role: President & Founder
+  period: Aug 2024 – May 2025
+- id: seprepa
+  order: 6
+  name: Student Government (SEPREPA)
+  role: Vice President
+  period: Aug 2024 – May 2025

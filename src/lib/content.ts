@@ -54,7 +54,9 @@ export async function getPatents() {
 }
 
 export async function getAwards() {
-  return (await collection('awards')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  // Newest first; entries with no date/year go last.
+  const when = (a: CollectionEntry<'awards'>) => a.data.date?.getUTCFullYear() ?? a.data.year ?? 0;
+  return (await collection('awards')).sort((a, b) => when(b) - when(a));
 }
 
 export async function getNews() {

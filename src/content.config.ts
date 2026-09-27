@@ -98,8 +98,13 @@ const patents = defineCollection({
   loader: mdFolder('patents'),
   schema: z.object({
     title: z.string(),
-    type: z.enum(['provisional', 'utility', 'design']),
+    /** Omit if unknown (e.g. a foreign filing). */
+    type: z.enum(['provisional', 'utility', 'design']).optional(),
     status: z.enum(['filed', 'pending', 'granted', 'abandoned']),
+    /** Where it was filed, e.g. "United States (USPTO)" or "Mexico". */
+    jurisdiction: z.string().optional(),
+    /** Your role if not sole inventor, e.g. "Co-inventor". */
+    role: z.string().optional(),
     /** Application / patent number. Leave unset to keep it private. */
     number: z.string().optional(),
     date: z.coerce.date().optional(),
@@ -111,7 +116,9 @@ const awards = defineCollection({
   schema: z.object({
     title: z.string(),
     org: z.string(),
-    date: z.coerce.date(),
+    /** Exact date if known, otherwise just `year`, otherwise neither. */
+    date: z.coerce.date().optional(),
+    year: z.number().optional(),
     description: z.string().optional(),
   }),
 });
@@ -148,6 +155,7 @@ const education = defineCollection({
     degree: z.string(),
     detail: z.string().optional(),
     period: z.string().optional(),
+    honors: z.array(z.string()).default([]),
     order: z.number().default(100),
   }),
 });
@@ -158,6 +166,22 @@ const organizations = defineCollection({
     name: z.string(),
     role: z.string(),
     url: z.string().optional(),
+    period: z.string().optional(),
+    order: z.number().default(100),
+  }),
+});
+
+const experience = defineCollection({
+  loader: file('src/content/experience.yaml'),
+  schema: z.object({
+    role: z.string(),
+    org: z.string(),
+    url: z.string().optional(),
+    location: z.string().optional(),
+    period: z.string(),
+    bullets: z.array(z.string()).default([]),
+    /** Related project page (file name without .md). */
+    project: reference('projects').optional(),
     order: z.number().default(100),
   }),
 });
@@ -181,6 +205,7 @@ export const collections = {
   news,
   research,
   education,
+  experience,
   organizations,
   skills,
 };

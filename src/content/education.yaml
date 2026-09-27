@@ -1,7 +1,17 @@
-# Each entry needs a unique `id`.
+# Each entry needs a unique `id`. Shown in `order`.
 - id: wpi
   order: 1
   school: Worcester Polytechnic Institute (WPI)
-  degree: B.S. Robotics Engineering        # TODO: confirm major
-  detail: Sophomore
-  # period: 2025 – 2029 (expected)         # TODO: confirm graduation year, then uncomment
+  degree: B.S. Robotics Engineering and Computer Science
+  detail: "GPA 3.71 / 4.0"
+  period: Expected May 2029
+  honors:
+    - Presidential Scholarship and International Grant
+- id: prepatec
+  order: 2
+  school: Instituto Tecnológico de Monterrey — PrepaTec
+  degree: High School Diploma
+  detail: "GPA 95.7 / 100"
+  period: Aug 2023 – May 2025
+  honors:
+    - Merit Scholarship and Honor Mention at Graduation

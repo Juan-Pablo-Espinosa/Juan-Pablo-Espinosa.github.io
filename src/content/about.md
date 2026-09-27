@@ -1,11 +1,13 @@
 <!-- Your bio. Plain Markdown — edit freely. -->
 
-<!-- TODO: replace this first paragraph with a short personal bio line in your own voice. -->
-I'm a robotics engineering student at Worcester Polytechnic Institute who likes
-building robots from the mechanism up — CAD, electronics, embedded Linux and
-the control software that ties them together.
+<!-- TODO: optionally add a short personal line in your own voice. -->
+I'm a robotics engineer studying Robotics Engineering and Computer Science at
+Worcester Polytechnic Institute. I'm the founder and **research lead of
+GR0X**, a humanoid robot that reconfigures its own morphology to take on the
+advantages of multiple robot body types. I lead its 12-person team in the
+**ALMaS Research Group** under Professor Mahdi Agheli.
 
-I founded **Daedamorph Robotics**, where I lead a 12-person team building
-**GR0X**, a humanoid whose limbs change length so it can adapt its body to the
-task. I'm also an undergraduate researcher in the **ALMaS Research Group** at
-WPI under Professor Mahdi Agheli.
+Before WPI, I was an embedded engineering intern at **Inbiodroid** in León,
+Mexico, working on **Prometheus 3.0**, Mexico's first avatar humanoid robot,
+and I directed programming and electrical for **FIRST Robotics Competition**
+teams 3480 & 3284. I also founded **Daedamorph Robotics**.

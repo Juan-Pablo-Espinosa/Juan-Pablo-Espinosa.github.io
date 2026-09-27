@@ -1,0 +1,27 @@
+# Work & research experience (About page), shown in `order`. Each entry needs a unique `id`.
+# `project` links to a project page (file name without .md).
+- id: gr0x
+  order: 1
+  role: Founder & Research Lead
+  org: GR-0X Humanoid · ALMaS Research Group (WPI)
+  period: May 2025 – Present
+  project: gr0x-humanoid
+  bullets:
+    - Founded and lead a 12-person research team (3 M.S. students, 5 seniors) through WPI's Major Qualifying Project to build GR-0X, a humanoid that reconfigures its own morphology for different tasks.
+    - Secured sponsorship and in-kind support from Microchip Technology, Polymaker and G20 Inc.
+    - Fully validated the adaptive lower-body / leg subsystem (patent pending) with working RL-based locomotion policies; now developing the upper body and preparing sim-to-real transfer.
+    - Architected a distributed multi-brain control system (ROS 2) and direct mechanical and electrical integration.
+    - Advise 2 of 3 M.S. thesis projects in the lab on morphology–performance trade-offs.
+- id: inbiodroid
+  order: 2
+  role: Embedded Engineer Intern
+  org: Inbiodroid
+  url: https://inbiodroid.com
+  location: León, Mexico
+  period: Dec 2024 – Jun 2025
+  project: prometheus-3
+  bullets:
+    - Contributed to Prometheus 3.0, Mexico's first avatar humanoid robot, at a finalist company in the ANA Avatar XPRIZE.
+    - Designed and integrated a LiDAR-based SLAM system achieving under 5 cm mapping accuracy for autonomous navigation.
+    - Presented Prometheus 3.0 to government officials as the youngest member of a 10-person engineering team.
+    - Co-inventor on a pending Mexican patent for a telepresence control system that improved response latency by about 20%.
