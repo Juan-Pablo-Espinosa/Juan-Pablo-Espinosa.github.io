@@ -1,0 +1,274 @@
+---
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../site.config';
+import { getResearchGroups, getPublications, getPatents, fmtMonth } from '../lib/content';
+
+const [groups, pubs, patents] = await Promise.all([getResearchGroups(), getPublications(), getPatents()]);
+
+// Pre-render Markdown bodies (group descriptions, patent summaries).
+const groupBodies = await Promise.all(groups.map(async (g) => (await render(g)).Content));
+const patentBodies = await Promise.all(patents.map(async (p) => (await render(p)).Content));
+
+const shown = { groups: groups.length > 0, pubs: pubs.length > 0, patents: patents.length > 0 };
+const order = (Object.keys(shown) as (keyof typeof shown)[]).filter((k) => shown[k]);
+const idx = (k: keyof typeof shown) => order.indexOf(k) + 1;
+
+const pubStatus = { published: 'PUBLISHED', submitted: 'SUBMITTED', 'in-prep': 'IN PREPARATION' } as const;
+const isMe = (a: string) => a.replace(/\s+/g, ' ').toLowerCase() === site.name.toLowerCase();
+---
+
+<Base
+  title="Research"
+  description="Research by Juan Pablo Espinosa: ALMaS Research Group at WPI, publications and patents on morphing humanoid robots."
+>
+  <PageHeader
+    label="RESEARCH"
+    title="Research"
+    lead="Mechanisms and control for robots that can change their own morphology."
+  />
+
+  {
+    shown.groups && (
+      <section class="section container" aria-labelledby="r-groups">
+        <SectionLabel index={idx('groups')} label="Groups" title="Research groups" id="r-groups" />
+        <div class="stack" style="--stack:1.25rem">
+          {groups.map((g, i) => {
+            const Body = groupBodies[i];
+            return (
+              <article class="frame group" data-reveal>
+                <div class="group-meta meta">
+                  <span>{g.data.institution}</span>
+                  {g.data.since && <span>SINCE {g.data.since}</span>}
+                </div>
+                <h3>
+                  {g.data.url ? (
+                    <a href={g.data.url} rel="noopener">
+                      {g.data.name}
+                    </a>
+                  ) : (
+                    g.data.name
+                  )}
+                </h3>
+                <p class="dim role">
+                  {g.data.role}
+                  {g.data.advisor && <> · Advisor: {g.data.advisor}</>}
+                </p>
+                <div class="prose">
+                  <Body />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    shown.pubs && (
+      <section class="section container" aria-labelledby="r-pubs">
+        <SectionLabel index={idx('pubs')} label="Publications" title="Publications & competitions" id="r-pubs" />
+        <ol class="pubs">
+          {pubs.map((p) => (
+            <li class="pub" data-reveal>
+              <div class="pub-year mono">{p.data.year}</div>
+              <div>
+                <h3 class="pub-title">{p.data.title}</h3>
+                <p class="authors">
+                  {p.data.authors.map((a, i) => (
+                    <>
+                      {isMe(a) ? <strong>{a}</strong> : a}
+                      {i < p.data.authors.length - 1 && ', '}
+                    </>
+                  ))}
+                </p>
+                <p class="venue">{p.data.venue}</p>
+                <p class="pub-status mono">
+                  [{pubStatus[p.data.status]}]{p.data.note && <span> · {p.data.note}</span>}
+                </p>
+                {(p.data.pdf || p.data.bibtex || p.data.links.length > 0) && (
+                  <div class="pub-actions">
+                    {p.data.pdf && (
+                      <a class="btn" href={p.data.pdf}>
+                        <Icon name="file" size={14} /> PDF
+                      </a>
+                    )}
+                    {p.data.links.map((l) => (
+                      <a class="btn" href={l.url} rel="noopener">
+                        <Icon name="external" size={14} /> {l.label}
+                      </a>
+                    ))}
+                    {p.data.bibtex && (
+                      <details class="bib">
+                        <summary class="btn">BibTeX</summary>
+                        <div class="bib-box">
+                          <pre>{p.data.bibtex.trim()}</pre>
+                          <button type="button" class="btn copy" data-copy hidden>
+                            Copy
+                          </button>
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )
+  }
+
+  {
+    shown.patents && (
+      <section class="section container" aria-labelledby="r-patents">
+        <SectionLabel index={idx('patents')} label="Intellectual Property" title="Patents" id="r-patents" />
+        <div class="stack" style="--stack:1.25rem">
+          {patents.map((p, i) => {
+            const Body = patentBodies[i];
+            return (
+              <article class="frame patent" data-reveal>
+                <p class="meta">
+                  <span class="accent">[{p.data.type.toUpperCase()} · {p.data.status.toUpperCase()}]</span>
+                  {p.data.date && <> · {fmtMonth(p.data.date)}</>}
+                  {p.data.number && <> · NO. {p.data.number}</>}
+                </p>
+                <h3>{p.data.title}</h3>
+                <div class="prose dim">
+                  <Body />
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .group,
+  .patent {
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+  }
+  .group-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .group h3 a {
+    text-decoration: none;
+  }
+  .group h3 a:hover {
+    color: var(--accent);
+  }
+  .role {
+    margin: 0.35rem 0 1rem;
+  }
+  .patent h3 {
+    margin: 0.5rem 0 0.6rem;
+  }
+  .pubs {
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .pub {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 1.25rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .pub-year {
+    color: var(--accent);
+    font-size: 0.9rem;
+  }
+  .pub-title {
+    font-size: 1.1rem;
+    line-height: 1.35;
+  }
+  .authors {
+    margin-top: 0.4rem;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+  .authors strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .venue {
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+  .pub-status {
+    margin-top: 0.5rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+  .pub-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+    align-items: flex-start;
+  }
+  .pub-actions .btn {
+    min-height: 36px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.7rem;
+  }
+  .bib {
+    flex-basis: 100%;
+  }
+  .bib summary {
+    list-style: none;
+    display: inline-flex;
+  }
+  .bib summary::-webkit-details-marker {
+    display: none;
+  }
+  .bib-box {
+    position: relative;
+    margin-top: 0.6rem;
+  }
+  .bib pre {
+    background: var(--bg-inset);
+    border: 1px solid var(--line);
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.78rem;
+  }
+  .copy {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  @media (max-width: 560px) {
+    .pub {
+      grid-template-columns: 1fr;
+      gap: 0.4rem;
+    }
+  }
+</style>
+
+<script>
+  // Copy-to-clipboard for BibTeX blocks (button only appears when JS + clipboard exist).
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    if (!navigator.clipboard) return;
+    btn.hidden = false;
+    btn.addEventListener('click', async () => {
+      const text = btn.parentElement?.querySelector('pre')?.textContent ?? '';
+      await navigator.clipboard.writeText(text);
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = 'Copy'), 1500);
+    });
+  });
+</script>

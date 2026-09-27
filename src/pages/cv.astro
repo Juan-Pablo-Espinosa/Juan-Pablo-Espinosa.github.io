@@ -1,0 +1,77 @@
+---
+/**
+ * CV page. Put your PDF at `public/cv/Juan-Pablo-Espinosa-CV.pdf`
+ * (path configurable in site.config.ts). Until it exists, a fallback panel
+ * is shown instead of a broken embed.
+ */
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import ContactLinks from '../components/ContactLinks.astro';
+import Icon from '../components/Icon.astro';
+import { site } from '../site.config';
+import { publicFileExists } from '../lib/assets';
+
+const hasPdf = publicFileExists(site.resumePath);
+---
+
+<Base title="CV" description={`Curriculum vitae of ${site.name}, robotics engineering student at WPI.`}>
+  <PageHeader label="CURRICULUM VITAE" title="CV">
+    {
+      hasPdf && (
+        <div class="btn-row actions">
+          <a class="btn btn-primary" href={site.resumePath} download>
+            <Icon name="download" size={14} /> Download PDF
+          </a>
+          <a class="btn" href={site.resumePath} target="_blank" rel="noopener">
+            <Icon name="external" size={14} /> Open in new tab
+          </a>
+        </div>
+      )
+    }
+  </PageHeader>
+
+  <section class="container">
+    {
+      hasPdf ? (
+        <div class="viewer frame">
+          <iframe src={`${site.resumePath}#view=FitH`} title={`${site.name} — CV (PDF)`} loading="lazy" />
+        </div>
+      ) : (
+        <div class="missing frame">
+          <p class="meta accent">// DOCUMENT STATUS: UPDATING</p>
+          <h2>The latest CV is being revised</h2>
+          <p class="dim">In the meantime, reach out and I'll send the current version directly.</p>
+          <ContactLinks />
+        </div>
+      )
+    }
+  </section>
+</Base>
+
+<style>
+  .actions {
+    margin-top: 1.5rem;
+  }
+  .viewer {
+    padding: 6px;
+  }
+  .viewer iframe {
+    display: block;
+    width: 100%;
+    height: min(85vh, 1100px);
+    border: 0;
+    background: #fff;
+  }
+  .missing {
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1.5rem, 5vw, 3rem);
+    max-width: 720px;
+  }
+  @media (max-width: 640px) {
+    /* Mobile browsers render embedded PDFs poorly; the buttons above are the primary path. */
+    .viewer iframe {
+      height: 70vh;
+    }
+  }
+</style>

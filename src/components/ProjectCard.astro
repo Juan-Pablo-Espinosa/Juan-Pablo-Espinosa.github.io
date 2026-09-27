@@ -1,0 +1,126 @@
+---
+/** Grid card linking to a project case study. The whole card is one link. */
+import { Image } from 'astro:assets';
+import StatusTag from './StatusTag.astro';
+import CoverPlaceholder from './CoverPlaceholder.astro';
+import { fmtMonth, iso, type Project } from '../lib/content';
+
+interface Props {
+  project: Project;
+  /** Index shown as `P-01` telemetry. */
+  n: number;
+  /** Load the cover eagerly (first card above the fold). */
+  eager?: boolean;
+}
+const { project, n, eager = false } = Astro.props;
+const { title, summary, role, date, tags, status, cover, coverAlt, codename } = project.data;
+---
+
+<article class="card frame" data-reveal>
+  <div class="cover">
+    {
+      cover ? (
+        <Image
+          src={cover}
+          alt={coverAlt ?? ''}
+          widths={[400, 640, 960]}
+          sizes="(min-width: 1000px) 360px, (min-width: 640px) 50vw, 100vw"
+          loading={eager ? 'eager' : 'lazy'}
+        />
+      ) : (
+        <CoverPlaceholder codename={codename ?? title} title={title} />
+      )
+    }
+  </div>
+  <div class="body">
+    <div class="top">
+      <StatusTag status={status} />
+      <span class="meta">P-{String(n).padStart(2, '0')} · <time datetime={iso(date)}>{fmtMonth(date)}</time></span>
+    </div>
+    <h3>
+      <a href={`/projects/${project.id}/`} class="stretched">{title}</a>
+    </h3>
+    <p class="summary">{summary}</p>
+    <p class="meta role">ROLE: {role}</p>
+    <ul class="tags" aria-label="Tags">
+      {tags.slice(0, 4).map((t) => <li class="tag">{t}</li>)}
+    </ul>
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  .card:hover,
+  .card:focus-within {
+    --c: var(--accent);
+    border-color: var(--line-strong);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card:hover {
+      transform: translateY(-2px);
+    }
+  }
+  .cover {
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .cover :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    transition: transform 0.4s var(--ease);
+  }
+  .card:hover .cover :global(img) {
+    transform: scale(1.02);
+  }
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.1rem 1.2rem 1.3rem;
+    flex: 1;
+  }
+  .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  h3 {
+    font-size: 1.15rem;
+  }
+  h3 a {
+    text-decoration: none;
+  }
+  /* Make the whole card clickable while keeping a single, accessible link. */
+  .stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .stretched:focus-visible {
+    outline: none;
+  }
+  .card:has(.stretched:focus-visible) {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .card:hover h3 {
+    color: var(--accent);
+  }
+  .summary {
+    color: var(--text-dim);
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+  .role {
+    margin-top: auto;
+    color: var(--text-dim);
+  }
+</style>

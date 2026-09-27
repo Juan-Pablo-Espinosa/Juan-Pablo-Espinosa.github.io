@@ -1,0 +1,78 @@
+---
+import ContactLinks from './ContactLinks.astro';
+import { site } from '../site.config';
+
+const year = new Date().getFullYear();
+const built = new Date().toISOString().slice(0, 10);
+---
+
+<footer class="site-footer">
+  <div class="container grid">
+    <div>
+      <p class="name">{site.name}</p>
+      <p class="dim small">{site.identity}</p>
+    </div>
+    <div>
+      <p class="meta head">// CONTACT</p>
+      <ContactLinks variant="list" />
+    </div>
+    <div class="telemetry meta">
+      <p class="head">// STATUS</p>
+      <p>SYS: <span class="accent">ONLINE</span></p>
+      <p>LOC: {site.location.toUpperCase()}</p>
+      <p>BUILD: {built}</p>
+      <p>UTC: <time data-utc-clock>--:--:--</time></p>
+    </div>
+  </div>
+  <div class="container base meta">
+    <span>© {year} {site.name}</span>
+    <span>Built with Astro · Hosted on GitHub Pages</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 4rem;
+    border-top: 1px solid var(--line);
+    background: var(--bg-inset);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 2rem;
+    padding-block: 3rem 2rem;
+  }
+  .name {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+  .small {
+    font-size: 0.9rem;
+    margin-top: 0.4rem;
+    max-width: 36ch;
+  }
+  .head {
+    margin-bottom: 0.75rem;
+    color: var(--accent);
+  }
+  .telemetry p + p {
+    margin-top: 0.3rem;
+  }
+  .telemetry time {
+    font-variant-numeric: tabular-nums;
+  }
+  .base {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-block: 1.25rem 2rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.66rem;
+  }
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

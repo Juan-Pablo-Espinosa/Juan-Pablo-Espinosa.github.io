@@ -1,0 +1,175 @@
+---
+/**
+ * Fullscreen "GR0X-OS" boot log shown once per browser session.
+ *
+ * How it stays safe:
+ *  - The overlay is `display:none` unless <html> has the `booting` class,
+ *    which an inline <head> script in Base.astro adds only when motion is
+ *    allowed and sessionStorage says we haven't booted yet this session.
+ *    No JS → no overlay; the real page is always in the HTML underneath.
+ *  - JS finishes in ~2.2 s. A CSS failsafe animation hides the overlay at
+ *    2.5 s no matter what, so it can never trap the visitor.
+ *  - Any key, click or tap skips it.
+ */
+import { site } from '../site.config';
+
+const { lines, host } = site.boot;
+---
+
+<div id="boot" class="boot" aria-hidden="true" data-lines={JSON.stringify(lines)} data-host={host} data-user={site.handle}>
+  <pre class="boot-log"></pre>
+  <p class="boot-skip">[ press any key or tap to skip ]</p>
+</div>
+
+<style is:global>
+  .boot {
+    display: none;
+  }
+  html.booting {
+    overflow: hidden;
+  }
+  html.booting .boot {
+    display: flex;
+    flex-direction: column;
+    /* Top-anchored like a real tty: new lines append below without moving
+       earlier ones (bottom-anchoring caused layout shift on every line). */
+    justify-content: flex-start;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    padding: clamp(56px, 8vw, 88px) clamp(16px, 4vw, 48px) clamp(16px, 4vw, 48px);
+    background: var(--bg-inset);
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: clamp(0.66rem, 1.6vw, 0.85rem);
+    line-height: 1.6;
+    cursor: default;
+    /* Failsafe: fully hidden by 2.5 s even if the script never runs. */
+    animation: boot-failsafe 0.25s linear 2.25s forwards;
+  }
+  html.booting .boot.is-out {
+    animation: boot-out 0.22s linear forwards;
+  }
+  .boot-log {
+    margin: 0;
+    font: inherit;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .boot-log .ok {
+    color: var(--accent);
+  }
+  .boot-log .hi {
+    color: var(--text);
+  }
+  .boot-log .cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.1em;
+    vertical-align: text-bottom;
+    background: var(--accent);
+  }
+  .boot-skip {
+    position: absolute;
+    top: clamp(16px, 3vw, 32px);
+    right: clamp(16px, 4vw, 48px);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: var(--text-faint);
+  }
+  /* Faint scanlines on the boot screen only. */
+  html.booting .boot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgb(0 0 0 / 0.18) 0 1px, transparent 1px 3px);
+  }
+  @keyframes boot-failsafe {
+    to {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+  @keyframes boot-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+</style>
+
+<script>
+  const root = document.documentElement;
+  const el = document.getElementById('boot');
+
+  if (el && root.classList.contains('booting')) {
+    const lines: string[] = JSON.parse(el.dataset.lines ?? '[]');
+    const host = el.dataset.host ?? 'localhost';
+    const user = el.dataset.user ?? 'guest';
+    const log = el.querySelector<HTMLPreElement>('.boot-log')!;
+    const timers: number[] = [];
+    let finished = false;
+
+    // Timeline budget (ms): lines 0–1500, login typed 1600–1900, fade 2000–2220.
+    const LINES_MS = 1500;
+    const step = LINES_MS / Math.max(lines.length, 1);
+
+    /** Append one log line, highlighting systemd's `[  OK  ]` marker. */
+    const addLine = (text: string) => {
+      const row = document.createElement('div');
+      const m = text.match(/^(\[\s*OK\s*\])(.*)$/);
+      if (m) {
+        const ok = document.createElement('span');
+        ok.className = 'ok';
+        ok.textContent = m[1];
+        row.append(ok, m[2]);
+      } else {
+        row.className = 'hi';
+        row.textContent = text;
+      }
+      log.append(row);
+    };
+
+    const finish = () => {
+      if (finished) return;
+      finished = true;
+      timers.forEach(clearTimeout);
+      el.classList.add('is-out');
+      window.setTimeout(() => {
+        root.classList.remove('booting');
+        el.remove();
+      }, 230);
+      removeEventListener('keydown', finish);
+      removeEventListener('pointerdown', finish);
+    };
+
+    lines.forEach((line, i) => timers.push(window.setTimeout(() => addLine(line), i * step)));
+
+    // Login prompt: typed character by character.
+    const LOGIN_AT = LINES_MS + 100;
+    timers.push(
+      window.setTimeout(() => {
+        const row = document.createElement('div');
+        row.className = 'hi';
+        row.append(document.createElement('br'), `${host} login: `);
+        const typed = document.createElement('span');
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
+        row.append(typed, cursor);
+        log.append(row);
+        [...user].forEach((ch, i) =>
+          timers.push(window.setTimeout(() => (typed.textContent += ch), (i + 1) * (280 / user.length))),
+        );
+      }, LOGIN_AT),
+    );
+
+    timers.push(window.setTimeout(finish, 2000));
+    addEventListener('keydown', finish);
+    addEventListener('pointerdown', finish);
+  }
+</script>

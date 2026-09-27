@@ -1,0 +1,79 @@
+---
+/**
+ * Blueprint-style placeholder used when a project has no cover image yet.
+ * Deliberately looks like a drawing sheet title block, not a broken image.
+ */
+interface Props {
+  codename: string;
+  title: string;
+  /** Wider 21:9 banner (used on case-study pages). */
+  wide?: boolean;
+}
+const { codename, title, wide = false } = Astro.props;
+// Unique per instance: several placeholders share a page, and SVG ids must not collide.
+const gid = `ph-grid-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class:list={['ph', { wide }]} role="img" aria-label={`${title} — cover image coming soon`}>
+  <svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <pattern id={gid} width="16" height="16" patternUnits="userSpaceOnUse">
+        <path d="M16 0H0V16" fill="none" stroke="currentColor" stroke-opacity=".08"></path>
+      </pattern>
+    </defs>
+    <rect width="320" height="180" fill={`url(#${gid})`}></rect>
+    <g fill="none" stroke="currentColor" stroke-opacity=".35">
+      <circle cx="160" cy="88" r="46"></circle>
+      <circle cx="160" cy="88" r="28" stroke-dasharray="3 4"></circle>
+      <path d="M100 88h120M160 28v120"></path>
+    </g>
+    <g stroke="var(--accent)" stroke-opacity=".7" fill="none">
+      <path d="M12 12h14M12 12v14M308 12h-14M308 12v14M12 168h14M12 168v-14M308 168h-14M308 168v-14"></path>
+    </g>
+  </svg>
+  <span class="code">{codename}</span>
+  <span class="note">NO IMAGE // FEED PENDING</span>
+</div>
+
+<style>
+  .ph {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    color: var(--text-dim);
+    background: var(--bg-inset);
+    overflow: hidden;
+  }
+  .wide {
+    aspect-ratio: 21 / 9;
+  }
+  svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .code {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    letter-spacing: 0.12em;
+    color: var(--text);
+    background: var(--bg-inset);
+    padding: 0.1rem 0.5rem;
+  }
+  .note {
+    position: absolute;
+    left: 50%;
+    bottom: 0.55rem;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+  }
+</style>

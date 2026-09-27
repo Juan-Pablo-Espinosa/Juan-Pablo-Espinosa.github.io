@@ -1,0 +1,27 @@
+# `proof` lists project file names (without .md) that demonstrate the skill.
+# A typo here fails the build, so links never go stale.
+- id: controls
+  order: 1
+  group: Controls & Actuation
+  items: [CAN FD / SocketCAN, RobStride actuators, Real-time motor control loops]
+  proof: [gr0x-humanoid, robstride-motor-control]
+- id: embedded
+  order: 2
+  group: Embedded & Linux
+  items: [Raspberry Pi 5, Raspberry Pi Pico (C/C++ SDK), Yocto Linux, Device trees, systemd]
+  proof: [gr0x-humanoid, rbe2020-embedded]
+- id: software
+  order: 3
+  group: Robotics Software
+  items: [ROS 2 Jazzy, C++, Python]
+  proof: [gr0x-humanoid]
+- id: learning
+  order: 4
+  group: Learning & Simulation
+  items: [Isaac Lab, Reinforcement learning (PPO)]
+  proof: [rl-locomotion]
+- id: mechanical
+  order: 5
+  group: Mechanical & CAD
+  items: [SolidWorks, URDF export, Mechanism design]
+  proof: [gr0x-humanoid]

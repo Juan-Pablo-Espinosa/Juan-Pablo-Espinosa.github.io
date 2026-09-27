@@ -1,0 +1,172 @@
+---
+/**
+ * Top status strip + navigation.
+ * Nav items whose content is empty are dropped (see getNavAvailability).
+ * On phones the nav is a horizontally scrollable row — no hamburger, no JS.
+ */
+import { site } from '../site.config';
+import { getNavAvailability } from '../lib/content';
+
+const has = await getNavAvailability();
+const items = [
+  { href: '/projects/', label: 'Projects', show: has.projects },
+  { href: '/research/', label: 'Research', show: has.research },
+  { href: '/about/', label: 'About', show: true },
+  { href: '/cv/', label: 'CV', show: true },
+].filter((i) => i.show);
+
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href) || `${path}/` === href;
+---
+
+<header class="site-header">
+  <div class="strip">
+    <div class="container strip-inner meta">
+      <span><span class="led" aria-hidden="true"></span>SYS: <b>ONLINE</b></span>
+      <span class="hide-sm">LOC: {site.location.toUpperCase()}</span>
+      <span class="hide-xs">NODE: {site.boot.host}</span>
+      <span class="clock">UTC <time data-utc-clock>--:--:--</time></span>
+    </div>
+  </div>
+  <nav class="container nav" aria-label="Main">
+    <a href="/" class="brand">
+      <span class="sr-only">{site.name} — home</span>
+      <span class="brand-mark" aria-hidden="true">JPE</span>
+      <span class="brand-text" aria-hidden="true">{site.handle}<span class="dim">@{site.boot.host.toLowerCase()}</span></span>
+    </a>
+    <ul class="links">
+      {
+        items.map((i, n) => (
+          <li>
+            <a href={i.href} aria-current={isCurrent(i.href) ? 'page' : undefined}>
+              <span class="n" aria-hidden="true">
+                {String(n + 1).padStart(2, '0')}
+              </span>
+              {i.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgb(10 11 13 / 0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .strip {
+    border-bottom: 1px solid var(--line);
+  }
+  .strip-inner {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    height: 28px;
+    font-size: 0.66rem;
+  }
+  .strip b {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .led {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 0.5rem;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    vertical-align: 1px;
+  }
+  .clock {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 60px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    text-decoration: none;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    flex: none;
+  }
+  .brand-mark {
+    display: grid;
+    place-items: center;
+    height: 30px;
+    padding-inline: 0.45rem;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+  }
+  .links {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .links a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--text-dim);
+    border-bottom: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .links a:hover {
+    color: var(--text);
+  }
+  .links a[aria-current='page'] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .n {
+    color: var(--text-faint);
+    font-size: 0.65rem;
+  }
+  @media (max-width: 720px) {
+    .hide-sm {
+      display: none;
+    }
+    .brand-text {
+      display: none;
+    }
+    .n {
+      display: none;
+    }
+    .links a {
+      padding: 0 0.55rem;
+      font-size: 0.72rem;
+    }
+  }
+  @media (max-width: 420px) {
+    .hide-xs {
+      display: none;
+    }
+  }
+</style>

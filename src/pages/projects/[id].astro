@@ -1,0 +1,300 @@
+---
+/**
+ * Case-study page. Structure:
+ *   Problem → My role → Approach → Results   (the Markdown body, `## ` headings)
+ *   Media                                      (video + gallery, if any)
+ *   Links                                      (repo + links, if any)
+ */
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import StatusTag from '../../components/StatusTag.astro';
+import CoverPlaceholder from '../../components/CoverPlaceholder.astro';
+import ProjectMedia from '../../components/ProjectMedia.astro';
+import Icon from '../../components/Icon.astro';
+import { getProjects, fmtMonth, iso, type Project } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return projects.map((project, i) => ({
+    params: { id: project.id },
+    props: { project, prev: projects[i - 1], next: projects[i + 1] },
+  }));
+}
+
+interface Props {
+  project: Project;
+  prev?: Project;
+  next?: Project;
+}
+const { project, prev, next } = Astro.props;
+const d = project.data;
+const { Content } = await render(project);
+
+const links = [...(d.repo ? [{ label: 'Source code', url: d.repo }] : []), ...d.links];
+const hasMedia = Boolean(d.video) || d.gallery.length > 0;
+const specRows: [string, string][] = [
+  ['Role', d.role],
+  ['Started', fmtMonth(d.date)],
+  ...Object.entries(d.specs),
+];
+---
+
+<Base title={d.title} description={d.summary} ogImage={`/og/projects/${project.id}.png`} ogType="article">
+  <article>
+    <header class="container head">
+      <nav class="crumb meta" aria-label="Breadcrumb">
+        <a href="/projects/">~/projects</a><span aria-hidden="true">/</span><span aria-current="page">{project.id}</span>
+      </nav>
+      <div class="status-row">
+        <StatusTag status={d.status} />
+        <time class="meta" datetime={iso(d.date)}>{fmtMonth(d.date)}</time>
+      </div>
+      <h1>{d.title}</h1>
+      <p class="lead">{d.summary}</p>
+      <ul class="tags" aria-label="Tags">{d.tags.map((t) => <li class="tag">{t}</li>)}</ul>
+    </header>
+
+    <div class="container">
+      <div class="cover frame">
+        {
+          d.cover ? (
+            <Image
+              src={d.cover}
+              alt={d.coverAlt ?? ''}
+              widths={[640, 960, 1280, 1920]}
+              sizes="(min-width: 1180px) 1120px, 100vw"
+              loading="eager"
+              fetchpriority="high"
+            />
+          ) : (
+            <CoverPlaceholder codename={d.codename ?? d.title} title={d.title} wide />
+          )
+        }
+      </div>
+    </div>
+
+    <div class="container layout">
+      <div class="main">
+        <div class="prose">
+          <Content />
+        </div>
+
+        {
+          hasMedia && (
+            <section class="block" aria-labelledby="media">
+              <h2 class="block-title" id="media">Media</h2>
+              {d.video && <ProjectMedia src={d.video} title={d.title} />}
+              {d.gallery.length > 0 && (
+                <div class="gallery">
+                  {d.gallery.map((g) => (
+                    <figure>
+                      <Image src={g.src} alt={g.alt} widths={[480, 800, 1200]} sizes="(min-width: 800px) 50vw, 100vw" />
+                      {g.caption && <figcaption class="meta">{g.caption}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
+              )}
+            </section>
+          )
+        }
+
+        {
+          links.length > 0 && (
+            <section class="block" aria-labelledby="links">
+              <h2 class="block-title" id="links">Links</h2>
+              <ul class="btn-row" style="list-style:none;padding:0">
+                {links.map((l) => (
+                  <li>
+                    <a class="btn" href={l.url} rel="noopener">
+                      <Icon name={l.url.includes('github.com') ? 'github' : 'external'} size={14} />
+                      {l.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )
+        }
+      </div>
+
+      <aside class="spec frame" aria-label="Project specifications">
+        <p class="meta spec-head">// SPEC SHEET</p>
+        <dl>
+          {
+            specRows.map(([k, v]) => (
+              <div>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </aside>
+    </div>
+
+    {
+      (prev || next) && (
+        <nav class="container pager" aria-label="More projects">
+          {prev ? (
+            <a class="frame" href={`/projects/${prev.id}/`}>
+              <span class="meta">← PREV</span>
+              {prev.data.title}
+            </a>
+          ) : (
+            <span />
+          )}
+          {next && (
+            <a class="frame next" href={`/projects/${next.id}/`}>
+              <span class="meta">NEXT →</span>
+              {next.data.title}
+            </a>
+          )}
+        </nav>
+      )
+    }
+  </article>
+</Base>
+
+<style>
+  .head {
+    padding-block: clamp(2rem, 6vw, 3.5rem) 2rem;
+  }
+  .crumb {
+    display: flex;
+    gap: 0.4rem;
+    text-transform: none;
+    margin-bottom: 1.5rem;
+  }
+  .crumb a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .crumb a:hover {
+    text-decoration: underline;
+  }
+  .status-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.8rem;
+  }
+  .head .lead {
+    margin-block: 1rem 1.25rem;
+  }
+  .cover {
+    overflow: hidden;
+    padding: 6px;
+  }
+  .cover :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    padding-block: 1rem 2rem;
+  }
+  .block {
+    margin-top: 3rem;
+  }
+  .block-title {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .block-title::before {
+    content: '//';
+    color: var(--text-faint);
+  }
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .gallery figure {
+    margin: 0;
+  }
+  .gallery :global(img) {
+    border: 1px solid var(--line);
+  }
+  .gallery figcaption {
+    margin-top: 0.4rem;
+    text-transform: none;
+  }
+  .spec {
+    position: sticky;
+    top: 110px;
+    padding: 1.25rem;
+    margin-top: 2.2rem;
+  }
+  .spec-head {
+    color: var(--accent);
+    margin-bottom: 0.9rem;
+  }
+  .spec dl div {
+    padding: 0.55rem 0;
+    border-top: 1px dashed var(--line-strong);
+  }
+  .spec dt {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .spec dd {
+    margin: 0.15rem 0 0;
+    font-size: 0.9rem;
+  }
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-block: 2rem;
+  }
+  .pager a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 1rem 1.2rem;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .pager a:hover {
+    --c: var(--accent);
+    color: var(--accent);
+  }
+  .pager .next {
+    text-align: right;
+    grid-column: 2;
+  }
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+    .spec {
+      position: static;
+      order: -1;
+      margin-top: 1rem;
+    }
+  }
+  @media (max-width: 560px) {
+    .pager {
+      grid-template-columns: 1fr;
+    }
+    .pager .next {
+      grid-column: 1;
+    }
+  }
+</style>

@@ -1,0 +1,35 @@
+---
+/**
+ * `// 01 PROJECTS` heading. The index is passed in by the page *after* empty
+ * sections are filtered out, so numbering never has gaps.
+ */
+import { pad2 } from '../lib/content';
+
+interface Props {
+  index: number;
+  label: string;
+  /** Optional larger title below the label. */
+  title?: string;
+  id?: string;
+  /** Heading level for the label (h2 by default; h1 on top-level pages). */
+  as?: 'h1' | 'h2';
+}
+const { index, label, title, id, as = 'h2' } = Astro.props;
+const Tag = title ? 'p' : as;
+const TitleTag = as;
+---
+
+<div class="section-head">
+  <Tag class="section-label" id={title ? undefined : id}>
+    <span class="idx" aria-hidden="true">// {pad2(index)}</span>
+    {label}
+  </Tag>
+  {title && <TitleTag class="section-title" id={id}>{title}</TitleTag>}
+  {!title && <div class="spacer"></div>}
+</div>
+
+<style>
+  .spacer {
+    height: 1.75rem;
+  }
+</style>

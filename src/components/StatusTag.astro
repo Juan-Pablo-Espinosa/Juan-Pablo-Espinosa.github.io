@@ -1,0 +1,59 @@
+---
+/** `[ACTIVE]`-style status readout with a small indicator light. */
+import { statusLabel, type Project } from '../lib/content';
+
+interface Props {
+  status: Project['data']['status'];
+}
+const { status } = Astro.props;
+const live = status === 'active' || status === 'in-development';
+---
+
+<span class:list={['status', `status-${status}`, { live }]}>
+  <span class="led" aria-hidden="true"></span>[{statusLabel[status]}]
+</span>
+
+<style>
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .led {
+    width: 6px;
+    height: 6px;
+    background: var(--text-faint);
+  }
+  .live {
+    color: var(--accent);
+  }
+  .live .led {
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+  }
+  .status-in-development .led {
+    background: transparent;
+    border: 1px solid var(--accent);
+    box-shadow: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .status-active .led {
+      animation: blink 2.4s steps(1) infinite;
+    }
+  }
+  @keyframes blink {
+    0%,
+    85% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 0.25;
+    }
+  }
+</style>

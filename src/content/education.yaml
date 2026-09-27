@@ -1,0 +1,7 @@
+# Each entry needs a unique `id`.
+- id: wpi
+  order: 1
+  school: Worcester Polytechnic Institute (WPI)
+  degree: B.S. Robotics Engineering        # TODO: confirm major
+  detail: Sophomore
+  # period: 2025 – 2029 (expected)         # TODO: confirm graduation year, then uncomment

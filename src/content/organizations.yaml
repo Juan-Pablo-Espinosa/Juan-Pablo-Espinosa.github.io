@@ -1,0 +1,17 @@
+# Shown in `order` (lowest first). Each entry needs a unique `id`.
+- id: daedamorph
+  order: 1
+  name: Daedamorph Robotics
+  role: Founder · Lead engineer, GR0X humanoid
+- id: almas
+  order: 2
+  name: ALMaS Research Group, WPI
+  role: Undergraduate researcher (Prof. Mahdi Agheli)
+- id: ieee
+  order: 3
+  name: WPI IEEE Student Branch
+  role: Member
+- id: bionics
+  order: 4
+  name: WPI Bionics Club
+  role: Member

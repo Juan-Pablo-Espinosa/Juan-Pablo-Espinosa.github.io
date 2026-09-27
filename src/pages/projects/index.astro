@@ -1,0 +1,30 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects } from '../../lib/content';
+
+const projects = await getProjects();
+// Note: when there are no projects, the nav link and home CTA are hidden automatically.
+---
+
+<Base title="Projects" description="Robotics projects by Juan Pablo Espinosa: the GR0X morphing humanoid, actuator control software, RL locomotion and more.">
+  <PageHeader
+    label={`PROJECTS · ${String(projects.length).padStart(2, '0')} ENTRIES`}
+    title="Projects"
+    lead="Hardware, embedded software and learning — mostly in service of building a humanoid that can change its own body."
+  />
+  <section class="container" aria-label="All projects">
+    <div class="grid">
+      {projects.map((p, i) => <ProjectCard project={p} n={i + 1} eager={i === 0} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1.25rem;
+  }
+</style>

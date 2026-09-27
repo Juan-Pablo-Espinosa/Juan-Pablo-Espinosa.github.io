@@ -1,0 +1,280 @@
+---
+import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import ContactLinks from '../components/ContactLinks.astro';
+import { Content as Bio } from '../content/about.md';
+import { site } from '../site.config';
+import { headshot } from '../lib/assets';
+import { getProjects, getAwards, fmtMonth, iso } from '../lib/content';
+
+const [education, organizations, skillsRaw, projects, awards] = await Promise.all([
+  getCollection('education'),
+  getCollection('organizations'),
+  getCollection('skills'),
+  getProjects(),
+  getAwards(),
+]);
+// YAML entries are keyed by id, so sort explicitly by `order` to keep file order.
+const byOrder = (a: { data: { order: number } }, b: { data: { order: number } }) => a.data.order - b.data.order;
+const skills = skillsRaw.sort(byOrder);
+education.sort(byOrder);
+organizations.sort(byOrder);
+const projectById = new Map(projects.map((p) => [p.id, p]));
+
+const shown = {
+  education: education.length > 0,
+  orgs: organizations.length > 0,
+  skills: skills.length > 0,
+  awards: awards.length > 0,
+};
+// "Bio" is always section 01; the rest follow in order.
+const order = ['bio', ...(Object.keys(shown) as (keyof typeof shown)[]).filter((k) => shown[k])];
+const idx = (k: string) => order.indexOf(k) + 1;
+---
+
+<Base
+  title="About"
+  description={`About ${site.name}: robotics engineering student at WPI, founder of Daedamorph Robotics, ALMaS researcher.`}
+  ogType="profile"
+>
+  <PageHeader label="ABOUT" title="About" />
+
+  <section class="container bio-wrap" aria-labelledby="a-bio">
+    <SectionLabel index={idx('bio')} label="Operator profile" title="Bio" id="a-bio" />
+    <div class="bio">
+      <div class="portrait frame">
+        {
+          headshot ? (
+            <Image src={headshot} alt={`Portrait of ${site.name}`} widths={[280, 420, 560]} sizes="280px" loading="eager" />
+          ) : (
+            <div class="portrait-ph" role="img" aria-label="Portrait coming soon">
+              <span>JPE</span>
+              <small class="meta">IMG PENDING</small>
+            </div>
+          )
+        }
+        <p class="meta portrait-cap">OPERATOR · {site.location.toUpperCase()}</p>
+      </div>
+      <div class="prose">
+        <Bio />
+      </div>
+      <div class="contact-row"><ContactLinks /></div>
+    </div>
+  </section>
+
+  {
+    shown.education && (
+      <section class="section container" aria-labelledby="a-edu">
+        <SectionLabel index={idx('education')} label="Education" title="Education" id="a-edu" />
+        <ul class="rows">
+          {education.map((e) => (
+            <li class="row" data-reveal>
+              <div>
+                <h3>{e.data.school}</h3>
+                <p class="dim">
+                  {e.data.degree}
+                  {e.data.detail && <> · {e.data.detail}</>}
+                </p>
+              </div>
+              {e.data.period && <p class="meta">{e.data.period}</p>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    shown.orgs && (
+      <section class="section container" aria-labelledby="a-orgs">
+        <SectionLabel index={idx('orgs')} label="Organizations" title="Organizations" id="a-orgs" />
+        <ul class="rows">
+          {organizations.map((o) => (
+            <li class="row" data-reveal>
+              <h3>
+                {o.data.url ? (
+                  <a href={o.data.url} rel="noopener">
+                    {o.data.name}
+                  </a>
+                ) : (
+                  o.data.name
+                )}
+              </h3>
+              <p class="dim">{o.data.role}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  {
+    shown.skills && (
+      <section class="section container" aria-labelledby="a-skills">
+        <SectionLabel index={idx('skills')} label="Capabilities" title="Skills — and where they're proven" id="a-skills" />
+        <div class="skills">
+          {skills.map((s) => {
+            const proof = s.data.proof.map((r) => projectById.get(r.id)).filter((p) => p !== undefined);
+            return (
+              <div class="skill frame" data-reveal>
+                <h3 class="mono">{s.data.group}</h3>
+                <ul class="tags">
+                  {s.data.items.map((i) => (
+                    <li class="tag">{i}</li>
+                  ))}
+                </ul>
+                {proof.length > 0 && (
+                  <p class="proof meta">
+                    PROVEN IN →{' '}
+                    {proof.map((p, i) => (
+                      <>
+                        <a href={`/projects/${p.id}/`}>{p.data.codename ?? p.data.title}</a>
+                        {i < proof.length - 1 && ' · '}
+                      </>
+                    ))}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    shown.awards && (
+      <section class="section container" aria-labelledby="a-awards">
+        <SectionLabel index={idx('awards')} label="Recognition" title="Awards" id="a-awards" />
+        <ul class="rows">
+          {awards.map((a) => (
+            <li class="row" data-reveal>
+              <div>
+                <h3>{a.data.title}</h3>
+                <p class="dim">
+                  {a.data.org}
+                  {a.data.description && <> — {a.data.description}</>}
+                </p>
+              </div>
+              <time class="meta" datetime={iso(a.data.date)}>
+                {fmtMonth(a.data.date)}
+              </time>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .bio-wrap {
+    padding-bottom: clamp(3rem, 7vw, 5rem);
+  }
+  .bio {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-areas: 'portrait text' 'portrait contact';
+    gap: clamp(1.5rem, 5vw, 3.5rem);
+    align-items: start;
+  }
+  .portrait {
+    padding: 8px;
+  }
+  .portrait :global(img),
+  .portrait-ph {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .portrait-ph {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.4rem;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 10px, rgb(255 255 255 / 0.02) 10px 11px),
+      var(--bg-inset);
+  }
+  .portrait-ph span {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 2.2rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+  }
+  .portrait-cap {
+    padding: 0.6rem 0.2rem 0.1rem;
+    font-size: 0.64rem;
+  }
+  .portrait {
+    grid-area: portrait;
+  }
+  .bio > .prose {
+    grid-area: text;
+  }
+  .contact-row {
+    grid-area: contact;
+  }
+  .rows {
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.5rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .row h3 {
+    font-size: 1.05rem;
+  }
+  .row h3 a {
+    text-decoration: none;
+  }
+  .row p.dim {
+    margin-top: 0.2rem;
+  }
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1.25rem;
+  }
+  .skill {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 1.3rem;
+  }
+  .skill h3 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .proof {
+    margin-top: auto;
+    padding-top: 0.8rem;
+    border-top: 1px dashed var(--line-strong);
+  }
+  .proof a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+  }
+  @media (max-width: 760px) {
+    .bio {
+      grid-template-columns: 1fr;
+      grid-template-areas: 'portrait' 'text' 'contact';
+    }
+    .portrait {
+      max-width: 240px;
+    }
+  }
+</style>

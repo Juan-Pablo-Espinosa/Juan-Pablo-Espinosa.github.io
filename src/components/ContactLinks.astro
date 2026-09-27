@@ -1,0 +1,66 @@
+---
+/** Email / LinkedIn / GitHub buttons. Links with an empty URL in site.config are skipped. */
+import Icon from './Icon.astro';
+import { site } from '../site.config';
+
+interface Props {
+  variant?: 'buttons' | 'list';
+}
+const { variant = 'buttons' } = Astro.props;
+const { emails, linkedin, github } = site.contact;
+
+const links = [
+  ...emails.map((e) => ({ href: `mailto:${e.address}`, label: e.label, detail: e.address, icon: 'mail' as const })),
+  linkedin && { href: linkedin, label: 'LinkedIn', detail: 'LinkedIn', icon: 'linkedin' as const },
+  github && { href: github, label: 'GitHub', detail: github.replace('https://', ''), icon: 'github' as const },
+].filter(Boolean) as { href: string; label: string; detail: string; icon: 'mail' | 'linkedin' | 'github' }[];
+---
+
+{
+  variant === 'buttons' ? (
+    <ul class="btn-row" role="list" style="list-style:none;padding:0">
+      {links.map((l) => (
+        <li>
+          <a class="btn" href={l.href} rel={l.href.startsWith('http') ? 'me noopener' : undefined}>
+            <Icon name={l.icon} />
+            {l.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <ul class="contact-list">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} rel={l.href.startsWith('http') ? 'me noopener' : undefined}>
+            <Icon name={l.icon} size={14} />
+            <span>{l.detail}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .contact-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+  }
+  .contact-list a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 32px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    word-break: break-all;
+  }
+  .contact-list a:hover {
+    color: var(--accent);
+  }
+</style>
