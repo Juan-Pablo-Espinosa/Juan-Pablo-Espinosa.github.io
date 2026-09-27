@@ -10,7 +10,8 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "check": "astro check"
+    "check": "astro check",
+    "cv:preview": "bash scripts/cv-preview.sh"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",

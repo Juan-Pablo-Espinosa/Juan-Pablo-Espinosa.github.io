@@ -36,7 +36,7 @@ Watch a deploy with `gh run watch`.
 | Education / organizations / skills | `src/content/*.yaml` |
 | Headshot | `src/assets/headshot.jpg` (or .png/.webp) — detected automatically |
 | Project images | `src/assets/projects/` |
-| Resume PDF | `public/cv/Juan-Pablo-Espinosa-CV.pdf` — detected automatically |
+| Resume PDF | `public/cv/Juan-Pablo-Espinosa-CV.pdf`, then run `npm run cv:preview` (see below) |
 | Videos | `public/media/` (short, compressed loops only — see below) |
 | Colors, fonts, spacing | tokens at the top of `src/styles/global.css` |
 
@@ -105,6 +105,16 @@ shown if you set `number`.
 
 Add an entry to `src/content/skills.yaml`. `proof` lists project file names (without `.md`)
 that demonstrate the skill; a typo fails the build so links never go stale.
+
+### Update your resume
+
+1. Replace `public/cv/Juan-Pablo-Espinosa-CV.pdf` with the new PDF (same file name).
+2. Run `npm run cv:preview` — it renders each PDF page to `src/assets/cv/page-N.png`
+   (needs `pdftoppm`: `sudo apt install poppler-utils`).
+3. Commit both the PDF and the images, then push.
+
+The CV page shows the resume as images (they work on every device — embedded PDF viewers
+are blank on Android and in browsers set to download PDFs); clicking a page opens the PDF.
 
 ### Change the boot sequence
 
